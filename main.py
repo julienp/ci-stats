@@ -37,9 +37,14 @@ def load_workflow_stats(filepaths: list[str]) -> list[dict]:
     return data_list
 
 
-def extract_successful_runs(data_list: list[dict]) -> list[dict]:
-    """Extract all successful workflow runs from one or more data files."""
+def extract_successful_runs(data_list: list[dict]) -> tuple[list[dict], int]:
+    """Extract all successful workflow runs from one or more data files.
+
+    Returns:
+        tuple: (list of runs with run_attempt==1, total count of all runs including retries)
+    """
     all_runs = []
+    total_runs_count = 0
 
     for data in data_list:
         # Navigate to the success section
@@ -55,6 +60,19 @@ def extract_successful_runs(data_list: list[dict]) -> list[dict]:
             # Extract the date from run_started_at
             run_started_at = run.get('run_started_at')
             duration = run.get('duration')
+
+            # Exlcude very fast runs.
+            if int(duration) < 2*60:
+                continue
+
+            # Count this run in the total
+            total_runs_count += 1
+
+            # To get comparable timings we nly pick the run attempt 1. This means we only pick runs that passed without
+            # retry, and due to the flakyness of CI this reduces the number of runs we use for stats by about half.
+            run_attempt = run.get('run_attempt')
+            if run_attempt != 1:
+                continue
 
             if run_started_at and duration is not None:
                 all_runs.append({
@@ -72,14 +90,15 @@ def extract_successful_runs(data_list: list[dict]) -> list[dict]:
             seen_ids.add(run['id'])
             unique_runs.append(run)
 
-    return unique_runs
+    return unique_runs, total_runs_count
 
 
-def plot_durations(runs: list[dict], output_file: str = "workflow_durations.png", bucket_days: int = 1):
+def plot_durations(runs: list[dict], total_runs: int, output_file: str = "workflow_durations.png", bucket_days: int = 1):
     """Plot the workflow durations by date.
 
     Args:
-        runs: List of workflow run data
+        runs: List of workflow run data (run_attempt==1 only)
+        total_runs: Total number of runs including retries
         output_file: Output filename for the plot
         bucket_days: Number of days to group data by (default: 1 for daily)
     """
@@ -143,8 +162,8 @@ def plot_durations(runs: list[dict], output_file: str = "workflow_durations.png"
     plt.grid(True, alpha=0.3, linestyle='--', axis='y')
 
     # Add statistics as text
-    stats_text = f"Total Runs: {len(df)}\n"
-    stats_text += f"Total Buckets: {len(bucket_stats)}\n"
+    stats_text = f"Initial Runs (attempt=1): {len(df)}\n"
+    stats_text += f"Total Runs (all attempts, not plotted): {total_runs}\n"
     stats_text += f"Bucket Size: {bucket_days} day(s)\n"
     stats_text += f"Avg Duration: {df['duration_minutes'].mean():.1f} min\n"
     stats_text += f"Min Duration: {df['duration_minutes'].min():.1f} min\n"
@@ -170,7 +189,10 @@ def plot_durations(runs: list[dict], output_file: str = "workflow_durations.png"
 
     # Show summary statistics
     print("\n=== Summary Statistics ===")
-    print(f"Total successful runs: {len(df)}")
+    print(f"Initial runs (attempt=1): {len(df)}")
+    print(f"Total runs (all attempts): {total_runs}")
+    retry_rate = ((total_runs - len(df)) / total_runs * 100) if total_runs > 0 else 0
+    print(f"Retry rate: {retry_rate:.1f}%")
     print(f"Date range: {df['date'].min().strftime('%Y-%m-%d')} to {df['date'].max().strftime('%Y-%m-%d')}")
     print(f"Average duration: {df['duration_minutes'].mean():.2f} minutes")
     print(f"Median duration: {df['duration_minutes'].median():.2f} minutes")
@@ -212,15 +234,16 @@ def main():
     data_list = load_workflow_stats(args.input_files)
 
     print("Extracting successful runs...")
-    runs = extract_successful_runs(data_list)
+    runs, total_runs = extract_successful_runs(data_list)
 
-    print(f"Found {len(runs)} successful runs (after deduplication)")
+    print(f"Found {len(runs)} initial runs (run_attempt=1, after deduplication)")
+    print(f"Total runs including retries: {total_runs}")
 
     if runs:
         print("Creating plot...")
         if args.bucket_days != 1:
             print(f"Grouping data into {args.bucket_days}-day buckets...")
-        plot_durations(runs, args.output, args.bucket_days)
+        plot_durations(runs, total_runs, args.output, args.bucket_days)
     else:
         print("No successful runs to plot!", file=sys.stderr)
         sys.exit(1)
