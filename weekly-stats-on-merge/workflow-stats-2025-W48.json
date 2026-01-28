@@ -1,0 +1,33 @@
+{
+	"workflow_runs_stats_summary": {
+		"total_runs_count": 0,
+		"name": "",
+		"rate": {
+			"success_rate": 0,
+			"failure_rate": 0,
+			"others_rate": 0
+		},
+		"execution_duration_stats": {
+			"min": 0,
+			"max": 0,
+			"avg": 0,
+			"med": 0,
+			"std": 0
+		},
+		"conclusions": {
+			"failure": {
+				"runs_count": 0,
+				"workflow_runs": []
+			},
+			"others": {
+				"runs_count": 0,
+				"workflow_runs": []
+			},
+			"success": {
+				"runs_count": 0,
+				"workflow_runs": []
+			}
+		}
+	},
+	"workflow_jobs_stats_summary": []
+}

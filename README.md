@@ -20,9 +20,9 @@ This creates files like `weekly-stats/workflow-stats-2025-W01.json`, `weekly-sta
 ## Analyze Data
 
 ```bash
-uv run python main.py weekly-stats/workflow-stats-*.json --bucket-days 7 --output weekly.png
+uv run python main.py weekly-stats-on-pr/workflow-stats-*.json --bucket-days 7 --output on-pr.png
 
-uv run python main.py weekly-stats/workflow-stats-*.json --bucket-days 30 --output monthly.png
+uv run python main.py weekly-stats-on-merge/workflow-stats-*.json --bucket-days 7 --output on-merge.png
 ```
 
 ### collect_weekly_stats.py

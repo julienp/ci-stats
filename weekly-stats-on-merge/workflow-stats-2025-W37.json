@@ -1,0 +1,231 @@
+{
+	"workflow_runs_stats_summary": {
+		"total_runs_count": 14,
+		"name": "Merge",
+		"rate": {
+			"success_rate": 0.9285714285714286,
+			"failure_rate": 0.07142857142857142,
+			"others_rate": -2.7755575615628914e-17
+		},
+		"execution_duration_stats": {
+			"min": 2429,
+			"max": 3958,
+			"avg": 2851.6923076923076,
+			"med": 2717,
+			"std": 365.6644920006031
+		},
+		"conclusions": {
+			"failure": {
+				"runs_count": 1,
+				"workflow_runs": [
+					{
+						"id": 17802704748,
+						"status": "completed",
+						"conclusion": "failure",
+						"actor": "justinvp",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17802704748/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17802704748/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17802704748/logs",
+						"run_started_at": "2025-09-17T15:28:37Z",
+						"update_at": "2025-09-17T16:11:22Z",
+						"created_at": "2025-09-17T15:28:37Z",
+						"duration": 2565
+					}
+				]
+			},
+			"others": {
+				"runs_count": 0,
+				"workflow_runs": []
+			},
+			"success": {
+				"runs_count": 13,
+				"workflow_runs": [
+					{
+						"id": 17864304791,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "julienp",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17864304791/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17864304791/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17864304791/logs",
+						"run_started_at": "2025-09-19T16:38:09Z",
+						"update_at": "2025-09-19T17:24:56Z",
+						"created_at": "2025-09-19T16:38:09Z",
+						"duration": 2807
+					},
+					{
+						"id": 17830964538,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "tgummerer",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17830964538/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17830964538/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17830964538/logs",
+						"run_started_at": "2025-09-18T13:53:38Z",
+						"update_at": "2025-09-18T14:43:49Z",
+						"created_at": "2025-09-18T13:53:38Z",
+						"duration": 3011
+					},
+					{
+						"id": 17816222581,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "pulumi-bot",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17816222581/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17816222581/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17816222581/logs",
+						"run_started_at": "2025-09-18T02:33:12Z",
+						"update_at": "2025-09-18T03:17:01Z",
+						"created_at": "2025-09-18T02:33:12Z",
+						"duration": 2629
+					},
+					{
+						"id": 17807665570,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "Frassle",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17807665570/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17807665570/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17807665570/logs",
+						"run_started_at": "2025-09-17T18:52:56Z",
+						"update_at": "2025-09-17T19:37:58Z",
+						"created_at": "2025-09-17T18:52:56Z",
+						"duration": 2702
+					},
+					{
+						"id": 17803932779,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "justinvp",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17803932779/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17803932779/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17803932779/logs",
+						"run_started_at": "2025-09-17T16:15:58Z",
+						"update_at": "2025-09-17T16:59:25Z",
+						"created_at": "2025-09-17T16:15:58Z",
+						"duration": 2607
+					},
+					{
+						"id": 17801204056,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "julienp",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17801204056/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17801204056/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17801204056/logs",
+						"run_started_at": "2025-09-17T14:36:34Z",
+						"update_at": "2025-09-17T15:21:51Z",
+						"created_at": "2025-09-17T14:36:34Z",
+						"duration": 2717
+					},
+					{
+						"id": 17800546851,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "Frassle",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17800546851/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17800546851/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17800546851/logs",
+						"run_started_at": "2025-09-17T14:14:16Z",
+						"update_at": "2025-09-17T14:57:54Z",
+						"created_at": "2025-09-17T14:14:16Z",
+						"duration": 2618
+					},
+					{
+						"id": 17799659190,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "Frassle",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17799659190/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17799659190/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17799659190/logs",
+						"run_started_at": "2025-09-17T13:43:02Z",
+						"update_at": "2025-09-17T14:28:04Z",
+						"created_at": "2025-09-17T13:43:02Z",
+						"duration": 2702
+					},
+					{
+						"id": 17796239769,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "tgummerer",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17796239769/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17796239769/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17796239769/logs",
+						"run_started_at": "2025-09-17T11:33:50Z",
+						"update_at": "2025-09-17T12:24:44Z",
+						"created_at": "2025-09-17T11:33:50Z",
+						"duration": 3054
+					},
+					{
+						"id": 17792875526,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "tgummerer",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17792875526/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17792875526/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17792875526/logs",
+						"run_started_at": "2025-09-17T09:18:45Z",
+						"update_at": "2025-09-17T10:09:29Z",
+						"created_at": "2025-09-17T09:18:45Z",
+						"duration": 3044
+					},
+					{
+						"id": 17787112930,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "justinvp",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17787112930/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17787112930/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17787112930/logs",
+						"run_started_at": "2025-09-17T04:54:34Z",
+						"update_at": "2025-09-17T05:35:03Z",
+						"created_at": "2025-09-17T04:54:34Z",
+						"duration": 2429
+					},
+					{
+						"id": 17762104344,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "Frassle",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17762104344/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17762104344/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17762104344/logs",
+						"run_started_at": "2025-09-16T10:01:08Z",
+						"update_at": "2025-09-16T11:07:06Z",
+						"created_at": "2025-09-16T10:01:08Z",
+						"duration": 3958
+					},
+					{
+						"id": 17744802977,
+						"status": "completed",
+						"conclusion": "success",
+						"actor": "justinvp",
+						"run_attempt": 1,
+						"html_url": "https://github.com/pulumi/pulumi/actions/runs/17744802977/attempts/1",
+						"jobs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17744802977/jobs",
+						"logs_url": "https://api.github.com/repos/pulumi/pulumi/actions/runs/17744802977/logs",
+						"run_started_at": "2025-09-15T19:49:47Z",
+						"update_at": "2025-09-15T20:36:21Z",
+						"created_at": "2025-09-15T19:49:47Z",
+						"duration": 2794
+					}
+				]
+			}
+		}
+	},
+	"workflow_jobs_stats_summary": []
+}
