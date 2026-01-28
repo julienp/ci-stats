@@ -164,6 +164,9 @@ def plot_durations(runs: list[dict], total_runs: int, output_file: str = "workfl
     # Add statistics as text
     stats_text = f"Initial Runs (attempt=1): {len(df)}\n"
     stats_text += f"Total Runs (all attempts, not plotted): {total_runs}\n"
+    retry_rate = ((total_runs - len(df)) / total_runs * 100) if total_runs > 0 else 0
+    stats_text += f"Retry rate: {retry_rate:.1f}%\n"
+
     stats_text += f"Bucket Size: {bucket_days} day(s)\n"
     stats_text += f"Avg Duration: {df['duration_minutes'].mean():.1f} min\n"
     stats_text += f"Min Duration: {df['duration_minutes'].min():.1f} min\n"
