@@ -7,18 +7,23 @@ Visualize GitHub Actions workflow run durations from data collected by [gh-workf
 
 ## Dependencies
 
+The scripts use [gh](https://cli.github.com/manual/gh) and [gh-workflow-stats](https://github.com/fchimpan/gh-workflow-stats).
+
+Install `gh` using the instructions https://github.com/cli/cli#installation and then install the gh-workflow-stats extension.
+
 ```bash
-# Install gh-workflow-stats extension
 gh extension install fchimpan/gh-workflow-stats
 ```
 
 ## Collect Data
 
-The `collect_weekly_stats.py` script collects stats using the [gh-workflow-stats](https://github.com/fchimpan/gh-workflow-stats) `gh` extension and stores them in the specified directory. Collection is chunked into calendar weeks.
+The `collect_weekly_stats.py` script collects stats chunked by calendar weeks.
 
 ```bash
 uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-pr.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-on-pr
+```
 
+```bash
 uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-merge.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-on-merge
 ```
 
@@ -28,7 +33,9 @@ The `main.py` script parses the stats files and creates a png graph.
 
 ```bash
 uv run python main.py weekly-stats-on-pr/workflow-stats-*.json --bucket-days 7 --output on-pr.png
+```
 
+```bash
 uv run python main.py weekly-stats-on-merge/workflow-stats-*.json --bucket-days 7 --output on-merge.png
 ```
 
