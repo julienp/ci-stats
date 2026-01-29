@@ -12,7 +12,9 @@ gh extension install fchimpan/gh-workflow-stats
 ## Collect Data
 
 ```bash
-uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-pr.yml --start 2025-01-01 --end 2025-12-31
+uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-pr.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-on-pr
+
+uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-merge.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-on-merge
 ```
 
 This creates files like `weekly-stats/workflow-stats-2025-W01.json`, `weekly-stats/workflow-stats-2025-W02.json`, etc.
