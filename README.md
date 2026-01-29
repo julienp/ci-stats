@@ -1,5 +1,8 @@
 # CI Stats - Workflow Duration Analyzer
 
+> [!WARNING]
+> This is AI generated code that has not been thorougly reviewed.
+
 Visualize GitHub Actions workflow run durations from data collected by [gh-workflow-stats](https://github.com/fchimpan/gh-workflow-stats).
 
 ## Dependencies
@@ -11,15 +14,17 @@ gh extension install fchimpan/gh-workflow-stats
 
 ## Collect Data
 
+The `collect_weekly_stats.py` script collects stats using the [gh-workflow-stats](https://github.com/fchimpan/gh-workflow-stats) `gh` extension and stores them in the specified directory. Collection is chunked into calendar weeks.
+
 ```bash
 uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-pr.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-on-pr
 
 uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-merge.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-on-merge
 ```
 
-This creates files like `weekly-stats/workflow-stats-2025-W01.json`, `weekly-stats/workflow-stats-2025-W02.json`, etc.
-
 ## Analyze Data
+
+The `main.py` script parses the stats files and creates a png graph.
 
 ```bash
 uv run python main.py weekly-stats-on-pr/workflow-stats-*.json --bucket-days 7 --output on-pr.png
@@ -39,10 +44,3 @@ uv run python main.py weekly-stats-on-merge/workflow-stats-*.json --bucket-days 
 - `input_files`: One or more JSON files (supports globs)
 - `-o, --output`: Output PNG filename (default: workflow_durations.png)
 - `-b, --bucket-days`: Days to group by (default: 1 for daily)
-
-## Notes
-
-- Only successful runs are analyzed
-- Multiple files are automatically deduplicated by run ID
-- Weekly collection prevents gh-workflow-stats crashes on large datasets
-- Error bars show standard deviation within each bucket
