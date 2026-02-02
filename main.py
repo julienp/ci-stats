@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import matplotlib
@@ -283,51 +284,223 @@ def plot_durations(runs: list[dict], total_runs: int, all_runs_for_rate: list[di
     print(f"Standard deviation: {df['duration_minutes'].std():.2f} minutes")
 
 
+def load_job_stats(filepaths: list[str]) -> list[tuple[str, dict]]:
+    """Load one or more job stats JSON files.
+
+    Returns:
+        List of tuples: (filename/week_identifier, data)
+    """
+    data_list = []
+
+    for filepath in filepaths:
+        path = Path(filepath)
+        if not path.exists():
+            print(f"Error: File '{filepath}' not found!", file=sys.stderr)
+            sys.exit(1)
+
+        print(f"  Loading: {filepath}")
+        try:
+            with open(path, 'r') as f:
+                data = json.load(f)
+                # Extract week identifier from filename (e.g., "2026-W01" from "job-stats-2026-W01.json")
+                filename = path.stem
+                week_id = filename.replace('job-stats-', '')
+                data_list.append((week_id, data))
+        except json.JSONDecodeError as e:
+            print(f"Error: Invalid JSON in '{filepath}': {e}", file=sys.stderr)
+            sys.exit(1)
+        except Exception as e:
+            print(f"Error: Failed to read '{filepath}': {e}", file=sys.stderr)
+            sys.exit(1)
+
+    # Sort by week identifier
+    data_list.sort(key=lambda x: x[0])
+    return data_list
+
+
+def extract_job_durations(data_list: list[tuple[str, dict]]) -> dict:
+    """Extract job durations over time from multiple job stats files.
+
+    Returns:
+        dict: {job_name: [(week_id, avg_duration_seconds, run_count), ...]}
+    """
+    job_durations = defaultdict(list)
+
+    for week_id, data in data_list:
+        if 'workflow_jobs_stats_summary' not in data:
+            print(f"Warning: No job stats in {week_id}, skipping", file=sys.stderr)
+            continue
+
+        jobs = data['workflow_jobs_stats_summary']
+
+        for job in jobs:
+            job_name = job['name']
+            avg_duration = job['execution_duration_stats']['avg']
+            run_count = job['total_runs_count']
+
+            # Only include jobs with actual runs
+            if run_count > 0 and avg_duration > 0:
+                job_durations[job_name].append((week_id, avg_duration, run_count))
+
+    return dict(job_durations)
+
+
+def plot_job_durations(job_durations: dict, output_file: str = "job_durations.png", top_n: int = 10):
+    """Plot line graphs for the top N slowest jobs over time.
+
+    Args:
+        job_durations: Dict of {job_name: [(week_id, avg_duration_seconds, run_count), ...]}
+        output_file: Output filename for the plot
+        top_n: Number of top slowest jobs to plot
+    """
+    if not job_durations:
+        print("No job duration data to plot!", file=sys.stderr)
+        sys.exit(1)
+
+    # Calculate overall average duration for each job
+    job_avg_durations = {}
+    for job_name, durations in job_durations.items():
+        # Weight by run count
+        total_duration_weighted = sum(dur * count for _, dur, count in durations)
+        total_runs = sum(count for _, _, count in durations)
+        if total_runs > 0:
+            job_avg_durations[job_name] = total_duration_weighted / total_runs
+
+    # Get top N slowest jobs
+    slowest_jobs = sorted(job_avg_durations.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    slowest_job_names = [name for name, _ in slowest_jobs]
+
+    print(f"\nTop {top_n} slowest jobs (by weighted average):")
+    for i, (name, avg_dur) in enumerate(slowest_jobs, 1):
+        print(f"  {i}. {name}: {avg_dur/60:.1f} minutes")
+
+    # Create the plot - adjust figure size to accommodate legend below
+    fig, ax = plt.subplots(figsize=(18, 10))
+
+    # Use a color palette
+    colors = plt.cm.tab10(np.linspace(0, 1, top_n))
+
+    # Plot each job
+    for idx, job_name in enumerate(slowest_job_names):
+        durations = job_durations[job_name]
+        weeks = [d[0] for d in durations]
+        avg_durations_min = [d[1] / 60 for d in durations]  # Convert to minutes
+
+        ax.plot(weeks, avg_durations_min,
+                marker='o', linewidth=2, markersize=6,
+                label=job_name, color=colors[idx], alpha=0.8)
+
+    # Formatting
+    ax.set_xlabel('Week', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Average Duration (minutes)', fontsize=12, fontweight='bold')
+    ax.set_title(f'Top {top_n} Slowest Jobs - Duration Over Time',
+                 fontsize=14, fontweight='bold', pad=20)
+
+    # Rotate x-axis labels
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+
+    # Add grid
+    ax.grid(True, alpha=0.3, linestyle='--')
+
+    # Add legend below the plot - adjust columns based on number of jobs
+    ncol = min(3, max(2, top_n // 5))  # 2-3 columns depending on number of jobs
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
+              ncol=ncol, fontsize=9, framealpha=0.9)
+
+    # Adjust layout to make room for legend below
+    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.2)
+
+    # Save the plot
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    print(f"\nPlot saved to: {output_file}")
+
+    # Print summary statistics
+    print("\n=== Summary Statistics ===")
+    print(f"Number of weeks analyzed: {len(set(w for durations in job_durations.values() for w, _, _ in durations))}")
+    print(f"Total unique jobs: {len(job_durations)}")
+    print(f"Jobs plotted: {len(slowest_job_names)}")
+
+
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Plot workflow run durations from gh-workflow-stats JSON output"
+        description="Plot workflow run durations or job durations from gh-workflow-stats JSON output"
     )
     parser.add_argument(
         'input_files',
         nargs='*',
         default=['workflow-stats.json'],
-        help='Path(s) to workflow-stats JSON file(s) (default: workflow-stats.json)'
+        help='Path(s) to workflow-stats JSON or job-stats JSON file(s) (default: workflow-stats.json)'
     )
     parser.add_argument(
         '-o', '--output',
         default='workflow_durations.png',
-        help='Output file for the plot (default: workflow_durations.png)'
+        help='Output file for the plot (default: workflow_durations.png or job_durations.png for --jobs mode)'
     )
     parser.add_argument(
         '-b', '--bucket-days',
         type=int,
         default=1,
-        help='Number of days to group data by (default: 1 for daily aggregation)'
+        help='Number of days to group data by (default: 1 for daily aggregation) - only for workflow mode'
+    )
+    parser.add_argument(
+        '-j', '--jobs',
+        action='store_true',
+        help='Analyze job statistics instead of workflow runs'
+    )
+    parser.add_argument(
+        '-n', '--top-n',
+        type=int,
+        default=10,
+        help='Number of top slowest jobs to plot (default: 10) - only for job mode'
     )
 
     args = parser.parse_args()
 
     # Handle default case
     if not args.input_files:
-        args.input_files = ['workflow-stats.json']
+        if args.jobs:
+            args.input_files = ['job-stats.json']
+        else:
+            args.input_files = ['workflow-stats.json']
 
-    print(f"Loading workflow stats from {len(args.input_files)} file(s)...")
-    data_list = load_workflow_stats(args.input_files)
+    # Set default output filename based on mode
+    if args.output == 'workflow_durations.png' and args.jobs:
+        args.output = 'job_durations.png'
 
-    print("Extracting successful runs...")
-    runs, total_runs, all_runs_for_rate = extract_successful_runs(data_list)
+    if args.jobs:
+        # Job statistics mode
+        print(f"Loading job stats from {len(args.input_files)} file(s)...")
+        data_list = load_job_stats(args.input_files)
 
-    print(f"Found {len(runs)} successful initial runs (run_attempt=1, after deduplication)")
+        print("Extracting job durations...")
+        job_durations = extract_job_durations(data_list)
 
-    if runs:
-        print("Creating plot...")
-        if args.bucket_days != 1:
-            print(f"Grouping data into {args.bucket_days}-day buckets...")
-        plot_durations(runs, total_runs, all_runs_for_rate, args.output, args.bucket_days)
+        if job_durations:
+            print("Creating plot...")
+            plot_job_durations(job_durations, args.output, args.top_n)
+        else:
+            print("No job data to plot!", file=sys.stderr)
+            sys.exit(1)
     else:
-        print("No successful runs to plot!", file=sys.stderr)
-        sys.exit(1)
+        # Workflow statistics mode (original behavior)
+        print(f"Loading workflow stats from {len(args.input_files)} file(s)...")
+        data_list = load_workflow_stats(args.input_files)
+
+        print("Extracting successful runs...")
+        runs, total_runs, all_runs_for_rate = extract_successful_runs(data_list)
+
+        print(f"Found {len(runs)} successful initial runs (run_attempt=1, after deduplication)")
+
+        if runs:
+            print("Creating plot...")
+            if args.bucket_days != 1:
+                print(f"Grouping data into {args.bucket_days}-day buckets...")
+            plot_durations(runs, total_runs, all_runs_for_rate, args.output, args.bucket_days)
+        else:
+            print("No successful runs to plot!", file=sys.stderr)
+            sys.exit(1)
 
 
 if __name__ == "__main__":

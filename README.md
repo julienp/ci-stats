@@ -27,9 +27,21 @@ uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-p
 uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-merge.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-on-merge
 ```
 
+To collect job statistics instead of workflow run statistics, add the `--jobs` flag:
+
+```bash
+uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-pr.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-jobs-on-pr --jobs
+```
+
+```bash
+uv run python collect_weekly_stats.py --org pulumi --repo pulumi --workflow on-merge.yml --start 2026-01-01 --end 2026-01-31 --dir weekly-stats-jobs-on-merge --jobs
+```
+
 ## Analyze Data
 
 The `main.py` script parses the stats files and creates a png graph.
+
+### Workflow Run Analysis
 
 ```bash
 uv run python main.py weekly-stats-on-pr/workflow-stats-*.json --bucket-days 7 --output on-pr.png
@@ -39,15 +51,30 @@ uv run python main.py weekly-stats-on-pr/workflow-stats-*.json --bucket-days 7 -
 uv run python main.py weekly-stats-on-merge/workflow-stats-*.json --bucket-days 7 --output on-merge.png
 ```
 
+### Job Duration Analysis
+
+For job statistics, use the `--jobs` flag to create line graphs showing the top slowest jobs over time:
+
+```bash
+uv run python main.py weekly-stats-jobs-on-pr/job-stats-*.json --jobs --bucket-days 7 --output jobs-on-pr.png
+```
+
+```bash
+uv run python main.py weekly-stats-jobs-on-merge/job-stats-*.json --jobs --bucket-days 7 --output jobs-on-merge.png
+```
+
 ### collect_weekly_stats.py
 - `-o, --org`: GitHub organization (required)
 - `-r, --repo`: Repository name (required)
 - `-w, --workflow`: Workflow file name (required)
 - `-s, --start`: Start date YYYY-MM-DD (required)
 - `-e, --end`: End date YYYY-MM-DD (default: today)
-- `-d, --dir`: Output directory (default: weekly-stats)
+- `-d, --dir`: Output directory (default: weekly-stats or weekly-stats-jobs)
+- `-j, --jobs`: Collect job statistics instead of workflow run statistics
 
 ### main.py
 - `input_files`: One or more JSON files (supports globs)
-- `-o, --output`: Output PNG filename (default: workflow_durations.png)
-- `-b, --bucket-days`: Days to group by (default: 1 for daily)
+- `-o, --output`: Output PNG filename (default: workflow_durations.png or job_durations.png for --jobs mode)
+- `-b, --bucket-days`: Days to group by (default: 1 for daily) - only for workflow mode
+- `-j, --jobs`: Analyze job statistics instead of workflow runs
+- `-n, --top-n`: Number of top slowest jobs to plot (default: 10) - only for job mode

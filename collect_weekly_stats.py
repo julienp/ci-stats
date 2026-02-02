@@ -40,14 +40,18 @@ def get_weeks_in_range(start_date: str, end_date: str) -> list[tuple[str, str, i
 
 def collect_week_stats(org: str, repo: str, workflow: str,
                        week_start: str, week_end: str, week_num: str,
-                       output_dir: Path) -> bool:
+                       output_dir: Path, jobs: bool = False) -> bool:
     """
     Collect stats for a single week.
+
+    Args:
+        jobs: If True, collect job stats instead of workflow run stats
 
     Returns:
         True if successful, False otherwise
     """
-    output_file = output_dir / f"workflow-stats-{week_num}.json"
+    prefix = "job-stats" if jobs else "workflow-stats"
+    output_file = output_dir / f"{prefix}-{week_num}.json"
 
     print(f"Collecting {week_num} ({week_start} to {week_end})...", end=" ", flush=True)
 
@@ -58,8 +62,12 @@ def collect_week_stats(org: str, repo: str, workflow: str,
         "-f", workflow,
         "-A",
         "-c", f"{week_start}..{week_end}",
-        "--json"
     ]
+
+    if jobs:
+        cmd.append("jobs")
+
+    cmd.append("--json")
 
     try:
         result = subprocess.run(
@@ -128,8 +136,13 @@ def main():
     )
     parser.add_argument(
         "-d", "--dir",
-        default="weekly-stats",
-        help="Output directory (default: weekly-stats)"
+        default=None,
+        help="Output directory (default: weekly-stats or weekly-stats-jobs depending on --jobs flag)"
+    )
+    parser.add_argument(
+        "-j", "--jobs",
+        action="store_true",
+        help="Collect job statistics instead of workflow run statistics"
     )
 
     args = parser.parse_args()
@@ -150,7 +163,10 @@ def main():
         sys.exit(1)
 
     # Create output directory
-    output_dir = Path(args.dir)
+    if args.dir:
+        output_dir = Path(args.dir)
+    else:
+        output_dir = Path("weekly-stats-jobs" if args.jobs else "weekly-stats")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"Configuration:")
@@ -158,6 +174,7 @@ def main():
     print(f"  Repository: {args.repo}")
     print(f"  Workflow: {args.workflow}")
     print(f"  Date range: {args.start} to {args.end}")
+    print(f"  Mode: {'Jobs' if args.jobs else 'Workflow runs'}")
     print(f"  Output directory: {output_dir}")
     print()
 
@@ -171,7 +188,7 @@ def main():
 
     for week_start, week_end, week_num in weeks:
         if collect_week_stats(args.org, args.repo, args.workflow,
-                             week_start, week_end, week_num, output_dir):
+                             week_start, week_end, week_num, output_dir, args.jobs):
             successful += 1
         else:
             failed += 1
@@ -184,8 +201,9 @@ def main():
     print(f"  Failed/Empty: {failed}")
     print(f"  Output directory: {output_dir}")
     print()
-    print(f"Run analysis with:")
-    print(f"  python main.py {output_dir}/workflow-stats-*.json")
+    if not args.jobs:
+        print(f"Run analysis with:")
+        print(f"  python main.py {output_dir}/workflow-stats-*.json")
     print("=" * 60)
 
 
